@@ -13,7 +13,7 @@ A powerful Chrome extension that exports your saved LinkedIn posts to JSON or CS
 
 ## Quick Install 🚀
 
-### Method 1: Install from Source (5 minutes)
+### Method 1: Install from Source (2 minutes)
 
 1. **Download the Extension**
    ```bash
@@ -21,13 +21,7 @@ A powerful Chrome extension that exports your saved LinkedIn posts to JSON or CS
    cd linkedin-post-vault
    ```
 
-2. **Generate Icons** (Required for first-time setup)
-   - Open `icons/generate-icons.html` in your browser
-   - Right-click each canvas and save as PNG with the shown filename
-   - Save all 4 icons to the `icons/` folder
-   - See [ICON_INSTRUCTIONS.md](ICON_INSTRUCTIONS.md) for detailed steps
-
-3. **Load in Chrome**
+2. **Load in Chrome**
    - Open Chrome and go to `chrome://extensions/`
    - Enable "Developer mode" (toggle in top-right corner)
    - Click "Load unpacked"
@@ -40,7 +34,7 @@ A powerful Chrome extension that exports your saved LinkedIn posts to JSON or CS
 git clone https://github.com/frankwiersma/linkedin-post-vault.git && cd linkedin-post-vault && start chrome chrome://extensions/
 ```
 
-Then follow step 3 above to load the extension.
+Then follow step 2 above to load the extension.
 
 ## How to Use 📖
 
@@ -121,10 +115,6 @@ Perfect for Excel, Google Sheets, or data analysis tools. Opens directly in spre
 - Try refreshing and running the extraction again
 - Check your internet connection
 
-### Icons not showing
-- Make sure you've generated the icon files (see [ICON_INSTRUCTIONS.md](ICON_INSTRUCTIONS.md))
-- Icons must be in the `icons/` folder with exact filenames: icon16.png, icon32.png, icon48.png, icon128.png
-
 ## Privacy & Security 🔒
 
 - **100% Local**: All data processing happens in your browser
@@ -196,7 +186,7 @@ MIT License - Feel free to use, modify, and distribute.
 
 ## Changelog 📅
 
-### Version 1.0.0 (2024)
+### Version 1.0.0 (November 24, 2024)
 - Initial release
 - JSON and CSV export
 - Automatic scrolling and data extraction
