@@ -186,7 +186,7 @@ MIT License - Feel free to use, modify, and distribute.
 
 ## Changelog 📅
 
-### Version 1.0.0 (November 24, 2024)
+### Version 1.0.0 (November 24, 2025)
 - Initial release
 - JSON and CSV export
 - Automatic scrolling and data extraction
