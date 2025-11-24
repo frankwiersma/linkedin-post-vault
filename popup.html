@@ -13,53 +13,61 @@
       <p class="subtitle">Export your saved posts</p>
     </div>
 
-    <div class="content">
-      <div class="status-section">
-        <div id="status" class="status-message">Ready to start</div>
-        <div id="progressInfo" class="progress-info"></div>
+    <!-- Loading State -->
+    <div id="loading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading...</p>
+    </div>
+
+    <!-- Navigation Prompt (when not on saved posts page) -->
+    <div id="nav-prompt" class="nav-prompt" style="display: none;">
+      <div class="prompt-icon">📍</div>
+      <h2>Ready to Collect?</h2>
+      <p>Navigate to your LinkedIn Saved Posts page to start collecting.</p>
+      <button id="go-to-saved-posts" class="btn btn-primary">
+        🚀 Go to Saved Posts
+      </button>
+    </div>
+
+    <!-- Stats Display (when on saved posts page with data) -->
+    <div id="content" style="display: none;">
+      <div class="stats-card">
+        <div class="stat-row">
+          <span class="stat-label">Total Posts Saved</span>
+          <span class="stat-value" id="total-count">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Last Collected</span>
+          <span class="stat-value small" id="last-collect">Never</span>
+        </div>
       </div>
 
-      <div class="action-section">
-        <button id="startBtn" class="btn btn-primary">
-          <span class="btn-icon">🚀</span>
-          Start Extraction
+      <div class="actions">
+        <button id="export-json-btn" class="btn btn-primary">
+          📤 Export as JSON
+        </button>
+        <button id="export-csv-btn" class="btn btn-primary">
+          📊 Export as CSV
+        </button>
+        <button id="clear-btn" class="btn btn-danger">
+          🗑️ Clear All Data
         </button>
       </div>
+    </div>
 
-      <div id="resultsSection" class="results-section" style="display: none;">
-        <div class="results-header">
-          <h3>Export Complete!</h3>
-          <p id="resultsCount" class="results-count"></p>
-        </div>
+    <!-- Empty State -->
+    <div id="empty-state" style="display: none;">
+      <div class="empty-icon">📭</div>
+      <h3>No Posts Yet</h3>
+      <p>Visit your LinkedIn saved posts page and click "Start Collection" in the banner.</p>
+    </div>
 
-        <div class="export-buttons">
-          <button id="downloadJSON" class="btn btn-secondary">
-            <span class="btn-icon">📄</span>
-            Download JSON
-          </button>
-          <button id="downloadCSV" class="btn btn-secondary">
-            <span class="btn-icon">📊</span>
-            Download CSV
-          </button>
-        </div>
-      </div>
-
-      <div class="instructions">
-        <h4>How to use:</h4>
-        <ol>
-          <li>Make sure you're logged into LinkedIn</li>
-          <li>Click "Start Extraction"</li>
-          <li>Wait for the extension to collect all posts</li>
-          <li>Download your data as JSON or CSV</li>
-        </ol>
-      </div>
-
-      <div class="footer">
-        <p>Made with ❤️ by Frank Wiersma</p>
-        <a href="https://www.buymeacoffee.com/frankwiersma" target="_blank" class="coffee-link">
-          ☕ Buy me a coffee
-        </a>
-      </div>
+    <!-- Footer -->
+    <div class="footer">
+      <p>Made with ❤️</p>
+      <a href="https://www.buymeacoffee.com/frankwiersma" target="_blank" class="coffee-link">
+        ☕ Buy me a coffee
+      </a>
     </div>
   </div>
 

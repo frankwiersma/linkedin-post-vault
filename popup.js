@@ -1,175 +1,231 @@
-// DOM elements
-const startBtn = document.getElementById('startBtn');
-const statusDiv = document.getElementById('status');
-const progressInfo = document.getElementById('progressInfo');
-const resultsSection = document.getElementById('resultsSection');
-const resultsCount = document.getElementById('resultsCount');
-const downloadJSONBtn = document.getElementById('downloadJSON');
-const downloadCSVBtn = document.getElementById('downloadCSV');
+// LinkedIn Post Vault - Popup Script
 
-// Store extracted data
-let extractedData = [];
+document.addEventListener('DOMContentLoaded', () => {
+  checkCurrentPage();
 
-// Event listeners
-startBtn.addEventListener('click', startExtraction);
-downloadJSONBtn.addEventListener('click', downloadJSON);
-downloadCSVBtn.addEventListener('click', downloadCSV);
+  const exportJsonBtn = document.getElementById('export-json-btn');
+  const exportCsvBtn = document.getElementById('export-csv-btn');
+  const clearBtn = document.getElementById('clear-btn');
+  const goToSavedPostsBtn = document.getElementById('go-to-saved-posts');
 
-// Listen for messages from content script
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type === 'progress') {
-    updateProgress(message.status, message.count);
-  } else if (message.type === 'complete') {
-    extractionComplete(message.data);
-  } else if (message.type === 'error') {
-    showError(message.error);
-  }
+  if (exportJsonBtn) exportJsonBtn.addEventListener('click', exportJSON);
+  if (exportCsvBtn) exportCsvBtn.addEventListener('click', exportCSV);
+  if (clearBtn) clearBtn.addEventListener('click', clearData);
+  if (goToSavedPostsBtn) goToSavedPostsBtn.addEventListener('click', goToSavedPosts);
 });
 
-function startExtraction() {
-  // Disable button and show loading state
-  startBtn.disabled = true;
-  startBtn.textContent = 'Extracting...';
-  statusDiv.textContent = 'Starting extraction...';
-  statusDiv.classList.add('loading');
-  resultsSection.style.display = 'none';
-
-  // Get current active tab
+// Check if user is on LinkedIn saved posts page
+function checkCurrentPage() {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     const currentTab = tabs[0];
 
-    // Check if we're on LinkedIn
-    if (!currentTab.url.includes('linkedin.com')) {
-      showError('Please navigate to LinkedIn first');
-      resetButton();
+    if (!currentTab || !currentTab.url) {
+      loadStats();
       return;
     }
 
-    // Send message to content script
-    chrome.tabs.sendMessage(currentTab.id, { action: 'startExtraction' }, (response) => {
-      if (chrome.runtime.lastError) {
-        showError('Failed to connect. Please refresh the LinkedIn page and try again.');
-        resetButton();
+    const isOnSavedPostsPage = currentTab.url.includes('linkedin.com/my-items/saved-posts');
+
+    if (!isOnSavedPostsPage) {
+      showNavigationPrompt();
+    } else {
+      loadStats();
+    }
+  });
+}
+
+// Show prompt to navigate to saved posts page
+function showNavigationPrompt() {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('content').style.display = 'none';
+  document.getElementById('empty-state').style.display = 'none';
+  document.getElementById('nav-prompt').style.display = 'flex';
+}
+
+// Navigate to saved posts page
+function goToSavedPosts() {
+  chrome.tabs.query({}, (allTabs) => {
+    const savedPostsTab = allTabs.find(tab =>
+      tab.url && tab.url.includes('linkedin.com/my-items/saved-posts')
+    );
+
+    if (savedPostsTab) {
+      chrome.tabs.update(savedPostsTab.id, { active: true });
+      chrome.windows.update(savedPostsTab.windowId, { focused: true });
+      window.close();
+    } else {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs[0]) {
+          chrome.tabs.update(tabs[0].id, {
+            url: 'https://www.linkedin.com/my-items/saved-posts/'
+          });
+        } else {
+          chrome.tabs.create({
+            url: 'https://www.linkedin.com/my-items/saved-posts/'
+          });
+        }
+        window.close();
+      });
+    }
+  });
+}
+
+// Load and display stats
+function loadStats() {
+  chrome.runtime.sendMessage({ type: 'GET_STATS' }, (response) => {
+    const loading = document.getElementById('loading');
+    const content = document.getElementById('content');
+    const emptyState = document.getElementById('empty-state');
+    const navPrompt = document.getElementById('nav-prompt');
+
+    loading.style.display = 'none';
+    navPrompt.style.display = 'none';
+
+    if (response.success && response.stats.total_count > 0) {
+      content.style.display = 'block';
+      emptyState.style.display = 'none';
+
+      document.getElementById('total-count').textContent = response.stats.total_count;
+
+      if (response.stats.last_collected) {
+        const date = new Date(response.stats.last_collected);
+        document.getElementById('last-collect').textContent = formatRelativeTime(date);
+      } else {
+        document.getElementById('last-collect').textContent = 'Never';
       }
-    });
+    } else {
+      content.style.display = 'none';
+      emptyState.style.display = 'flex';
+    }
   });
 }
 
-function updateProgress(status, count) {
-  statusDiv.textContent = status;
-  if (count !== undefined) {
-    progressInfo.textContent = `Found ${count} saved posts`;
-  }
-}
+// Export as JSON
+function exportJSON() {
+  chrome.runtime.sendMessage({ type: 'EXPORT_DATA' }, (response) => {
+    if (response.success) {
+      const jsonString = JSON.stringify(response.data, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
 
-function extractionComplete(data) {
-  extractedData = data;
-  statusDiv.classList.remove('loading');
-  statusDiv.textContent = 'Extraction complete!';
-  progressInfo.textContent = '';
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `linkedin-saved-posts-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
 
-  // Show results section
-  resultsSection.style.display = 'block';
-  resultsCount.textContent = `Successfully extracted ${data.length} saved posts`;
-
-  resetButton();
-}
-
-function showError(error) {
-  statusDiv.classList.remove('loading');
-  statusDiv.textContent = `Error: ${error}`;
-  statusDiv.style.color = '#d32f2f';
-  progressInfo.textContent = '';
-
-  resetButton();
-}
-
-function resetButton() {
-  startBtn.disabled = false;
-  startBtn.innerHTML = '<span class="btn-icon">🚀</span> Start Extraction';
-}
-
-function downloadJSON() {
-  const dataStr = JSON.stringify(extractedData, null, 2);
-  const blob = new Blob([dataStr], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-
-  const timestamp = new Date().toISOString().split('T')[0];
-  const filename = `linkedin_saved_posts_${timestamp}.json`;
-
-  chrome.downloads.download({
-    url: url,
-    filename: filename,
-    saveAs: true
+      showToast('JSON exported successfully!');
+    } else {
+      showToast('Failed to export data');
+    }
   });
 }
 
-function downloadCSV() {
-  const csv = convertToCSV(extractedData);
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
+// Export as CSV
+function exportCSV() {
+  chrome.runtime.sendMessage({ type: 'EXPORT_DATA' }, (response) => {
+    if (response.success && response.data.length > 0) {
+      const csvString = convertToCSV(response.data);
+      const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
 
-  const timestamp = new Date().toISOString().split('T')[0];
-  const filename = `linkedin_saved_posts_${timestamp}.csv`;
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `linkedin-saved-posts-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
 
-  chrome.downloads.download({
-    url: url,
-    filename: filename,
-    saveAs: true
+      showToast('CSV exported successfully!');
+    } else {
+      showToast('No data to export');
+    }
   });
 }
 
+// Convert to CSV
 function convertToCSV(data) {
-  if (!data || data.length === 0) {
-    return '';
-  }
+  if (!data || data.length === 0) return '';
 
-  // CSV headers
   const headers = [
-    'Title',
-    'Author',
-    'Author Profile',
-    'Post URL',
-    'Content',
-    'Date',
-    'Post Type',
-    'Has Image',
-    'Has Video',
-    'Reactions',
-    'Comments',
-    'Saved Date'
+    'post_urn',
+    'author_name',
+    'author_profile_url',
+    'author_headline',
+    'is_company_post',
+    'connection_degree',
+    'posted_time',
+    'post_url',
+    'post_text',
+    'has_image',
+    'has_video',
+    'reactions',
+    'comments'
   ];
 
-  // Escape CSV field
   const escapeCSV = (field) => {
-    if (field === null || field === undefined) {
-      return '';
-    }
+    if (field === null || field === undefined) return '""';
     const str = String(field);
     if (str.includes(',') || str.includes('"') || str.includes('\n')) {
       return `"${str.replace(/"/g, '""')}"`;
     }
-    return str;
+    return `"${str}"`;
   };
 
-  // Build CSV rows
-  const rows = data.map(post => {
-    return [
-      escapeCSV(post.title || ''),
-      escapeCSV(post.author || ''),
-      escapeCSV(post.authorProfile || ''),
-      escapeCSV(post.postUrl || ''),
-      escapeCSV(post.content || ''),
-      escapeCSV(post.date || ''),
-      escapeCSV(post.postType || ''),
-      escapeCSV(post.hasImage ? 'Yes' : 'No'),
-      escapeCSV(post.hasVideo ? 'Yes' : 'No'),
-      escapeCSV(post.reactions || ''),
-      escapeCSV(post.comments || ''),
-      escapeCSV(new Date().toISOString())
-    ].join(',');
+  const headerRow = headers.join(',');
+  const dataRows = data.map(post => {
+    return headers.map(h => escapeCSV(post[h])).join(',');
   });
 
-  // Combine headers and rows
-  return [headers.join(','), ...rows].join('\n');
+  return [headerRow, ...dataRows].join('\n');
+}
+
+// Clear all data
+function clearData() {
+  if (confirm('Are you sure you want to delete all saved posts? This cannot be undone.')) {
+    chrome.runtime.sendMessage({ type: 'CLEAR_DATA' }, (response) => {
+      if (response.success) {
+        showToast('All data cleared');
+        setTimeout(() => loadStats(), 500);
+      } else {
+        showToast('Failed to clear data');
+      }
+    });
+  }
+}
+
+// Format relative time
+function formatRelativeTime(date) {
+  const now = new Date();
+  const diffMs = now - date;
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins} min${diffMins > 1 ? 's' : ''} ago`;
+  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+  if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+
+  return date.toLocaleDateString();
+}
+
+// Show toast notification
+function showToast(message) {
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.classList.add('show');
+  }, 10);
+
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 2500);
 }

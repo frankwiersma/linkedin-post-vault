@@ -38,22 +38,26 @@ Then follow step 2 above to load the extension.
 
 ## How to Use 📖
 
-1. **Log into LinkedIn**
-   - Make sure you're logged into your LinkedIn account
+1. **Navigate to Your Saved Posts**
+   - Go to [LinkedIn Saved Posts](https://www.linkedin.com/my-items/saved-posts/)
+   - Or click the extension icon and click "Go to Saved Posts"
 
-2. **Open the Extension**
-   - Click the LinkedIn Post Vault icon in your Chrome toolbar
-   - (If you don't see it, click the puzzle piece icon and pin it)
-
-3. **Start Extraction**
-   - Click the "Start Extraction" button
+2. **Start Collection**
+   - You'll see a purple banner at the top of the page
+   - Click "Start Collection" in the banner
    - The extension will automatically:
-     - Navigate to your saved posts page
-     - Scroll through all your saved posts
-     - Extract all data
+     - Collect all visible posts
+     - Click "Show more results" to load additional posts
+     - Continue until all posts are collected
 
-4. **Download Your Data**
-   - Once complete, click "Download JSON" or "Download CSV"
+3. **Monitor Progress**
+   - Watch the banner for real-time status updates
+   - See how many posts have been collected
+   - Click "Stop" anytime to pause collection
+
+4. **Export Your Data**
+   - Click the extension icon in your toolbar
+   - Choose "Export as JSON" or "Export as CSV"
    - Your data is saved to your Downloads folder
 
 ## What Data is Extracted? 📊
@@ -185,6 +189,16 @@ If you find this extension helpful, consider buying me a coffee!
 MIT License - Feel free to use, modify, and distribute.
 
 ## Changelog 📅
+
+### Version 1.1.0 (November 24, 2025)
+- Complete rewrite for reliability and performance
+- On-page banner UI with real-time status updates
+- Persistent storage - data saved across sessions
+- Proper pagination handling with "Show more results" button
+- Badge counter showing number of saved posts
+- Deduplication to avoid saving posts twice
+- Enhanced data extraction with more fields
+- Better error handling and notifications
 
 ### Version 1.0.0 (November 24, 2025)
 - Initial release
