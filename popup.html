@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinkedIn Post Vault</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>LinkedIn Post Vault</h1>
+      <p class="subtitle">Export your saved posts</p>
+    </div>
+
+    <div class="content">
+      <div class="status-section">
+        <div id="status" class="status-message">Ready to start</div>
+        <div id="progressInfo" class="progress-info"></div>
+      </div>
+
+      <div class="action-section">
+        <button id="startBtn" class="btn btn-primary">
+          <span class="btn-icon">🚀</span>
+          Start Extraction
+        </button>
+      </div>
+
+      <div id="resultsSection" class="results-section" style="display: none;">
+        <div class="results-header">
+          <h3>Export Complete!</h3>
+          <p id="resultsCount" class="results-count"></p>
+        </div>
+
+        <div class="export-buttons">
+          <button id="downloadJSON" class="btn btn-secondary">
+            <span class="btn-icon">📄</span>
+            Download JSON
+          </button>
+          <button id="downloadCSV" class="btn btn-secondary">
+            <span class="btn-icon">📊</span>
+            Download CSV
+          </button>
+        </div>
+      </div>
+
+      <div class="instructions">
+        <h4>How to use:</h4>
+        <ol>
+          <li>Make sure you're logged into LinkedIn</li>
+          <li>Click "Start Extraction"</li>
+          <li>Wait for the extension to collect all posts</li>
+          <li>Download your data as JSON or CSV</li>
+        </ol>
+      </div>
+
+      <div class="footer">
+        <p>Made with ❤️ by Frank Wiersma</p>
+        <a href="https://www.buymeacoffee.com/frankwiersma" target="_blank" class="coffee-link">
+          ☕ Buy me a coffee
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
